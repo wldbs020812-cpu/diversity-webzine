@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>2026 부산 문화다양성 주간 아카이빙 웹진</title>
+  <meta name="description" content="2026 부산 문화다양성 주간 아카이빙 웹진입니다.">
+  <meta property="og:title" content="2026 부산 문화다양성 주간 아카이빙 웹진">
+  <meta property="og:description" content="문화다양성 주간의 전시·공연·토크·체험·캠페인을 기록합니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wldbs020812-cpu.github.io/webzine-test/">
+  <meta property="og:image" content="https://wldbs020812-cpu.github.io/webzine-test/pages/page01.jpg?v=1">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#1b1220">
+  <style>
+    @font-face{font-family:"Busan Dandi";src:url("fonts/BusanDandi-Light.ttf") format("truetype");font-weight:300;font-display:swap}
+    @font-face{font-family:"Busan Dandi";src:url("fonts/BusanDandi-Medium.ttf") format("truetype");font-weight:500;font-display:swap}
+    @font-face{font-family:"Busan Dandi";src:url("fonts/BusanDandi-Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+    :root{--ink:#171018;--paper:#fff;--accent:#d744f1;--panel:#f5eff7}
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0}
+    body{overflow:hidden;background:var(--ink);font-family:"Busan Dandi",sans-serif;color:var(--paper);touch-action:manipulation}
+    button,input{font:inherit}
+    button{border:0}
+    .viewer{position:fixed;inset:0;display:grid;place-items:center;padding:0;background:#1b141d}
+    .page-stage{position:relative;overflow:hidden;background:#fff;box-shadow:0 0 50px rgba(0,0,0,.4)}
+    .page-image{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+    .nav-zone{position:fixed;top:0;bottom:0;z-index:10;width:50%;padding:0;background:transparent;cursor:pointer}
+    .nav-zone.prev{left:0;cursor:w-resize}
+    .nav-zone.next{right:0;cursor:e-resize}
+    .nav-arrow{position:absolute;top:50%;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(23,16,24,.52);font-family:Arial,sans-serif;font-size:38px;font-weight:300;line-height:1;opacity:0;transform:translateY(-50%);transition:opacity .18s ease,background .18s ease}
+    .prev .nav-arrow{left:20px}.next .nav-arrow{right:20px}
+    .nav-zone:hover .nav-arrow,.nav-zone:focus-visible .nav-arrow{opacity:1}
+    .nav-zone:disabled{cursor:default}.nav-zone:disabled .nav-arrow{display:none}
+    .topbar{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:30;display:flex;align-items:center;gap:9px}
+    .page-counter,.round-button{height:46px;border:1px solid rgba(255,255,255,.26);background:rgba(23,16,24,.76);backdrop-filter:blur(8px);box-shadow:0 5px 22px rgba(0,0,0,.2)}
+    .page-counter{display:flex;align-items:center;gap:5px;padding:0 16px;border-radius:999px;font-size:17px;font-weight:500;letter-spacing:.03em}
+    .page-counter .total{opacity:.65}
+    .round-button{display:grid;place-items:center;width:46px;padding:0;border-radius:50%;color:#fff;cursor:pointer}
+    .menu-icon{font-family:Arial,sans-serif;font-size:23px;line-height:1}
+    .video-card{position:absolute;z-index:20;left:19.4%;top:32.5%;width:50.4%;padding:2.15% 2.15% 1.25%;border:2px solid #171018;background:#fff;color:#171018;box-shadow:0 8px 18px rgba(0,0,0,.24);cursor:pointer}
+    .video-card[hidden]{display:none}
+    .video-thumb-wrap{position:relative;overflow:hidden;border:2px solid #171018;aspect-ratio:16/9;background:#111}
+    .video-thumb{display:block;width:100%;height:100%;object-fit:cover}
+    .play-mark{position:absolute;inset:50% auto auto 50%;display:grid;place-items:center;width:16%;aspect-ratio:1;border-radius:50%;background:rgba(23,16,24,.76);color:#fff;font-family:Arial,sans-serif;font-size:clamp(14px,2.1vw,34px);transform:translate(-50%,-50%);transition:transform .18s ease,background .18s ease}
+    .video-card:hover .play-mark,.video-card:focus-visible .play-mark{background:var(--accent);transform:translate(-50%,-50%) scale(1.08)}
+    .video-label{width:max-content;max-width:94%;margin:2.3% auto -9.7%;padding:1.8% 6%;border:2px solid #171018;border-radius:999px;background:#fff;font-size:clamp(10px,1.35vw,22px);font-weight:700;line-height:1.1;white-space:nowrap}
+    .menu-overlay{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px;background:rgba(23,16,24,.76);backdrop-filter:blur(9px);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}
+    .menu-overlay.open{opacity:1;visibility:visible}
+    .menu-panel{width:min(520px,100%);max-height:min(700px,calc(100vh - 48px));overflow:auto;padding:30px;border:2px solid var(--ink);border-radius:8px;background:var(--panel);color:var(--ink);box-shadow:14px 14px 0 rgba(215,68,241,.88)}
+    .menu-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .menu-title{margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em}
+    .close-button{display:grid;place-items:center;width:40px;height:40px;padding:0;background:transparent;color:var(--ink);font-family:Arial,sans-serif;font-size:34px;cursor:pointer}
+    .toc{margin:0;padding:0;list-style:none;border-top:2px solid var(--ink)}
+    .toc-button{display:grid;grid-template-columns:48px 1fr 28px;align-items:center;width:100%;gap:11px;padding:17px 4px;border-bottom:1px solid rgba(23,16,24,.3);background:transparent;color:var(--ink);text-align:left;cursor:pointer;transition:color .15s ease,padding-left .15s ease}
+    .toc-button:hover,.toc-button:focus-visible{padding-left:10px;color:#a918c2}
+    .toc-number{font-size:15px;font-weight:700}.toc-label{font-size:18px;font-weight:500}.toc-arrow{font-family:Arial,sans-serif;font-size:20px;text-align:right}
+    .video-modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:clamp(20px,5vw,72px);background:rgba(10,6,11,.94);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}
+    .video-modal.open{opacity:1;visibility:visible}
+    .modal-video{position:relative;z-index:2;display:block;width:min(1180px,92vw);max-height:82vh;background:#000;box-shadow:0 16px 60px rgba(0,0,0,.55)}
+    .modal-close{position:absolute;top:max(18px,env(safe-area-inset-top));right:max(18px,env(safe-area-inset-right));z-index:3;display:grid;place-items:center;width:48px;height:48px;border:1px solid rgba(255,255,255,.36);border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-family:Arial,sans-serif;font-size:34px;cursor:pointer}
+    .modal-help{position:absolute;bottom:max(17px,env(safe-area-inset-bottom));left:50%;z-index:3;margin:0;font-size:14px;opacity:.72;transform:translateX(-50%);white-space:nowrap}
+    @media(max-width:700px){.nav-arrow{display:none}.topbar{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));gap:6px}.page-counter,.round-button{height:40px}.round-button{width:40px}.page-counter{padding:0 12px;font-size:14px}.menu-panel{padding:22px;box-shadow:8px 8px 0 rgba(215,68,241,.88)}.menu-title{font-size:24px}.toc-button{grid-template-columns:38px 1fr 22px;padding:15px 2px}.toc-label{font-size:16px}.video-card{border-width:1px}.video-thumb-wrap,.video-label{border-width:1px}.modal-help{display:none}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main class="viewer" aria-label="문화다양성 아카이빙 웹진">
+    <div class="page-stage" id="page-stage">
+      <img class="page-image" id="page-image" src="pages/page01.jpg" alt="웹진 1페이지">
+      <button class="video-card" id="video-card" type="button" aria-label="영상 재생" hidden>
+        <span class="video-thumb-wrap"><img class="video-thumb" id="video-thumb" alt="영상 미리보기"><span class="play-mark" aria-hidden="true">▶</span></span>
+        <span class="video-label" id="video-label"></span>
+      </button>
+    </div>
+  </main>
+
+  <button class="nav-zone prev" id="previous-button" type="button" aria-label="이전 페이지"><span class="nav-arrow" aria-hidden="true">‹</span></button>
+  <button class="nav-zone next" id="next-button" type="button" aria-label="다음 페이지"><span class="nav-arrow" aria-hidden="true">›</span></button>
+
+  <div class="topbar">
+    <div class="page-counter" aria-live="polite"><span id="current-page">1</span><span>/</span><span class="total">51</span></div>
+    <button class="round-button" id="menu-button" type="button" aria-label="목차 열기"><span class="menu-icon" aria-hidden="true">☰</span></button>
+  </div>
+
+  <div class="menu-overlay" id="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+    <section class="menu-panel">
+      <header class="menu-header"><h2 class="menu-title" id="menu-title">CONTENTS</h2><button class="close-button" id="menu-close" type="button" aria-label="목차 닫기">×</button></header>
+      <ol class="toc">
+        <li><button class="toc-button" type="button" data-page="3"><span class="toc-number">03</span><span class="toc-label">부산 문화다양성 주간 소개</span><span class="toc-arrow">→</span></button></li>
+        <li><button class="toc-button" type="button" data-page="7"><span class="toc-number">07</span><span class="toc-label">문화다양성 콘텐츠 전시</span><span class="toc-arrow">→</span></button></li>
+        <li><button class="toc-button" type="button" data-page="21"><span class="toc-number">21</span><span class="toc-label">문화다양성 공연</span><span class="toc-arrow">→</span></button></li>
+        <li><button class="toc-button" type="button" data-page="33"><span class="toc-number">33</span><span class="toc-label">문화다양성 토크</span><span class="toc-arrow">→</span></button></li>
+        <li><button class="toc-button" type="button" data-page="40"><span class="toc-number">40</span><span class="toc-label">문화다양성 체험</span><span class="toc-arrow">→</span></button></li>
+        <li><button class="toc-button" type="button" data-page="45"><span class="toc-number">45</span><span class="toc-label">문화다양성 캠페인</span><span class="toc-arrow">→</span></button></li>
+      </ol>
+    </section>
+  </div>
+
+  <div class="video-modal" id="video-modal" role="dialog" aria-modal="true" aria-label="영상 재생 화면">
+    <button class="modal-close" id="modal-close" type="button" aria-label="영상 닫기">×</button>
+    <video class="modal-video" id="modal-video" controls playsinline preload="metadata"></video>
+    <p class="modal-help">영상 바깥의 왼쪽·오른쪽을 클릭하면 이전·다음 페이지로 이동합니다.</p>
+  </div>
+
+  <script>
+    const totalPages=51;
+    const videoPages={
+      8:{src:"videos/video01.mp4",thumb:"images/thumb01.jpg",label:"문화다양성 전시 & 체험 스케치 영상"},
+      22:{src:"videos/video02.mp4",thumb:"images/thumb02.jpg",label:"문화다양성 공연 & 토크 스케치 영상"}
+    };
+    let currentPage=1;
+    let menuReturnFocus=null;
+    const pageImage=document.getElementById("page-image");
+    const pageStage=document.getElementById("page-stage");
+    const pageNumber=document.getElementById("current-page");
+    const previousButton=document.getElementById("previous-button");
+    const nextButton=document.getElementById("next-button");
+    const menuButton=document.getElementById("menu-button");
+    const menuOverlay=document.getElementById("menu-overlay");
+    const menuClose=document.getElementById("menu-close");
+    const videoCard=document.getElementById("video-card");
+    const videoThumb=document.getElementById("video-thumb");
+    const videoLabel=document.getElementById("video-label");
+    const videoModal=document.getElementById("video-modal");
+    const modalVideo=document.getElementById("modal-video");
+    const modalClose=document.getElementById("modal-close");
+
+    function fileName(page){return `pages/page${String(page).padStart(2,"0")}.jpg`}
+    function sizeStage(){const ratio=2000/2667;let height=innerHeight,width=height*ratio;if(width>innerWidth){width=innerWidth;height=width/ratio}pageStage.style.width=`${width}px`;pageStage.style.height=`${height}px`}
+    function preload(page){if(page<1||page>totalPages)return;const image=new Image();image.src=fileName(page)}
+    function updateVideoCard(){const item=videoPages[currentPage];if(!item){videoCard.hidden=true;return}videoThumb.src=item.thumb;videoLabel.textContent=item.label;videoCard.setAttribute("aria-label",`${item.label} 재생`);videoCard.hidden=false}
+    function showPage(page){currentPage=Math.max(1,Math.min(totalPages,page));pageImage.src=fileName(currentPage);pageImage.alt=`웹진 ${currentPage}페이지`;pageNumber.textContent=currentPage;previousButton.disabled=currentPage===1;nextButton.disabled=currentPage===totalPages;updateVideoCard();preload(currentPage-1);preload(currentPage+1);history.replaceState(null,"",`#page=${currentPage}`)}
+    function changePage(step){closeVideo(false);showPage(currentPage+step)}
+    function openMenu(){menuReturnFocus=document.activeElement;menuOverlay.classList.add("open");menuClose.focus()}
+    function closeMenu(){menuOverlay.classList.remove("open");if(menuReturnFocus)menuReturnFocus.focus()}
+    function openVideo(){const item=videoPages[currentPage];if(!item)return;modalVideo.src=item.src;videoModal.classList.add("open");modalVideo.play().catch(()=>{});modalClose.focus()}
+    function closeVideo(reset=true){if(!videoModal.classList.contains("open"))return;modalVideo.pause();if(reset)modalVideo.currentTime=0;videoModal.classList.remove("open");modalVideo.removeAttribute("src");modalVideo.load();videoCard.focus()}
+
+    previousButton.addEventListener("click",()=>changePage(-1));
+    nextButton.addEventListener("click",()=>changePage(1));
+    menuButton.addEventListener("click",openMenu);
+    menuClose.addEventListener("click",closeMenu);
+    menuOverlay.addEventListener("click",event=>{if(event.target===menuOverlay)closeMenu()});
+    document.querySelectorAll(".toc-button").forEach(button=>button.addEventListener("click",()=>{showPage(Number(button.dataset.page));closeMenu()}));
+    videoCard.addEventListener("click",event=>{event.stopPropagation();openVideo()});
+    modalVideo.addEventListener("click",event=>event.stopPropagation());
+    modalClose.addEventListener("click",event=>{event.stopPropagation();closeVideo()});
+    videoModal.addEventListener("click",event=>{if(event.target!==videoModal)return;const goNext=event.clientX>=innerWidth/2;closeVideo();showPage(currentPage+(goNext?1:-1))});
+    document.addEventListener("keydown",event=>{if(event.key==="Escape"){if(videoModal.classList.contains("open"))closeVideo();else if(menuOverlay.classList.contains("open"))closeMenu();return}if(menuOverlay.classList.contains("open")||videoModal.classList.contains("open"))return;if(event.key==="ArrowRight")changePage(1);if(event.key==="ArrowLeft")changePage(-1)});
+    let touchStartX=0;
+    pageStage.addEventListener("touchstart",event=>{touchStartX=event.changedTouches[0].clientX},{passive:true});
+    pageStage.addEventListener("touchend",event=>{if(videoModal.classList.contains("open")||menuOverlay.classList.contains("open"))return;const delta=event.changedTouches[0].clientX-touchStartX;if(Math.abs(delta)>55)changePage(delta<0?1:-1)},{passive:true});
+    addEventListener("resize",sizeStage);
+    const initialMatch=location.hash.match(/page=(\d+)/);sizeStage();showPage(initialMatch?Number(initialMatch[1]):1);
+  </script>
+</body>
+</html>

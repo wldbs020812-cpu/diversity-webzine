@@ -8,8 +8,12 @@
   <meta property="og:title" content="2026 부산 문화다양성 주간 아카이빙 웹진">
   <meta property="og:description" content="문화다양성 주간의 전시·공연·토크·체험·캠페인을 기록합니다.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://wldbs020812-cpu.github.io/webzine-test/">
-  <meta property="og:image" content="https://wldbs020812-cpu.github.io/webzine-test/pages/page01.jpg?v=1">
+  <meta property="og:url" content="https://wldbs020812-cpu.github.io/diversity-webzine/">
+  <meta property="og:image" content="https://wldbs020812-cpu.github.io/diversity-webzine/pages/page01.jpg?v=3">
+  <meta property="og:image:secure_url" content="https://wldbs020812-cpu.github.io/diversity-webzine/pages/page01.jpg?v=3">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1500">
+  <meta property="og:image:height" content="2000">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1b1220">
   <style>
@@ -38,13 +42,15 @@
     .page-counter .total{opacity:.65}
     .round-button{display:grid;place-items:center;width:46px;padding:0;border-radius:50%;color:#fff;cursor:pointer}
     .menu-icon{font-family:Arial,sans-serif;font-size:23px;line-height:1}
+    .video-tint{position:absolute;inset:0;z-index:15;background:rgba(220,76,238,.44);mix-blend-mode:multiply;pointer-events:none}
+    .video-tint[hidden]{display:none}
     .video-card{position:absolute;z-index:20;left:19.4%;top:32.5%;width:50.4%;padding:2.15% 2.15% 1.25%;border:2px solid #171018;background:#fff;color:#171018;box-shadow:0 8px 18px rgba(0,0,0,.24);cursor:pointer}
     .video-card[hidden]{display:none}
-    .video-thumb-wrap{position:relative;overflow:hidden;border:2px solid #171018;aspect-ratio:16/9;background:#111}
+    .video-thumb-wrap{position:relative;display:block;overflow:hidden;border:2px solid #171018;aspect-ratio:16/9;background:#111}
     .video-thumb{display:block;width:100%;height:100%;object-fit:cover}
     .play-mark{position:absolute;inset:50% auto auto 50%;display:grid;place-items:center;width:16%;aspect-ratio:1;border-radius:50%;background:rgba(23,16,24,.76);color:#fff;font-family:Arial,sans-serif;font-size:clamp(14px,2.1vw,34px);transform:translate(-50%,-50%);transition:transform .18s ease,background .18s ease}
     .video-card:hover .play-mark,.video-card:focus-visible .play-mark{background:var(--accent);transform:translate(-50%,-50%) scale(1.08)}
-    .video-label{width:max-content;max-width:94%;margin:2.3% auto -9.7%;padding:1.8% 6%;border:2px solid #171018;border-radius:999px;background:#fff;font-size:clamp(10px,1.35vw,22px);font-weight:700;line-height:1.1;white-space:nowrap}
+    .video-label{display:block;width:max-content;max-width:94%;margin:2.3% auto -9.7%;padding:1.8% 6%;border:2px solid #171018;border-radius:999px;background:#fff;font-size:clamp(10px,1.35vw,22px);font-weight:700;line-height:1.1;white-space:nowrap}
     .menu-overlay{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px;background:rgba(23,16,24,.76);backdrop-filter:blur(9px);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}
     .menu-overlay.open{opacity:1;visibility:visible}
     .menu-panel{width:min(520px,100%);max-height:min(700px,calc(100vh - 48px));overflow:auto;padding:30px;border:2px solid var(--ink);border-radius:8px;background:var(--panel);color:var(--ink);box-shadow:14px 14px 0 rgba(215,68,241,.88)}
@@ -68,6 +74,7 @@
   <main class="viewer" aria-label="문화다양성 아카이빙 웹진">
     <div class="page-stage" id="page-stage">
       <img class="page-image" id="page-image" src="pages/page01.jpg" alt="웹진 1페이지">
+      <div class="video-tint" id="video-tint" hidden></div>
       <button class="video-card" id="video-card" type="button" aria-label="영상 재생" hidden>
         <span class="video-thumb-wrap"><img class="video-thumb" id="video-thumb" alt="영상 미리보기"><span class="play-mark" aria-hidden="true">▶</span></span>
         <span class="video-label" id="video-label"></span>
@@ -105,11 +112,17 @@
 
   <script>
     const totalPages=51;
-    const videoPages={
-      8:{src:"videos/video01.mp4",thumb:"images/thumb01.jpg",label:"문화다양성 전시 & 체험 스케치 영상"},
-      22:{src:"videos/video02.mp4",thumb:"images/thumb02.jpg",label:"문화다양성 공연 & 토크 스케치 영상"}
+    const videos={
+      1:{src:"videos/video01.mp4",thumb:"images/thumb01.jpg",label:"문화다양성 전시 & 체험 스케치 영상"},
+      2:{src:"videos/video02.mp4",thumb:"images/thumb02.jpg",label:"문화다양성 공연 & 토크 스케치 영상"}
     };
-    let currentPage=1;
+    const slides=[];
+    for(let page=1;page<=totalPages;page++){
+      slides.push({page});
+      if(page===8)slides.push({page,video:1});
+      if(page===22)slides.push({page,video:2});
+    }
+    let currentSlide=0;
     let menuReturnFocus=null;
     const pageImage=document.getElementById("page-image");
     const pageStage=document.getElementById("page-stage");
@@ -119,6 +132,7 @@
     const menuButton=document.getElementById("menu-button");
     const menuOverlay=document.getElementById("menu-overlay");
     const menuClose=document.getElementById("menu-close");
+    const videoTint=document.getElementById("video-tint");
     const videoCard=document.getElementById("video-card");
     const videoThumb=document.getElementById("video-thumb");
     const videoLabel=document.getElementById("video-label");
@@ -128,13 +142,14 @@
 
     function fileName(page){return `pages/page${String(page).padStart(2,"0")}.jpg`}
     function sizeStage(){const ratio=2000/2667;let height=innerHeight,width=height*ratio;if(width>innerWidth){width=innerWidth;height=width/ratio}pageStage.style.width=`${width}px`;pageStage.style.height=`${height}px`}
-    function preload(page){if(page<1||page>totalPages)return;const image=new Image();image.src=fileName(page)}
-    function updateVideoCard(){const item=videoPages[currentPage];if(!item){videoCard.hidden=true;return}videoThumb.src=item.thumb;videoLabel.textContent=item.label;videoCard.setAttribute("aria-label",`${item.label} 재생`);videoCard.hidden=false}
-    function showPage(page){currentPage=Math.max(1,Math.min(totalPages,page));pageImage.src=fileName(currentPage);pageImage.alt=`웹진 ${currentPage}페이지`;pageNumber.textContent=currentPage;previousButton.disabled=currentPage===1;nextButton.disabled=currentPage===totalPages;updateVideoCard();preload(currentPage-1);preload(currentPage+1);history.replaceState(null,"",`#page=${currentPage}`)}
-    function changePage(step){closeVideo(false);showPage(currentPage+step)}
+    function preload(index){const slide=slides[index];if(!slide)return;const image=new Image();image.src=fileName(slide.page)}
+    function updateVideoCard(slide){const item=slide.video?videos[slide.video]:null;videoTint.hidden=!item;if(!item){videoCard.hidden=true;return}videoThumb.src=item.thumb;videoLabel.textContent=item.label;videoCard.setAttribute("aria-label",`${item.label} 재생`);videoCard.hidden=false}
+    function showSlide(index){currentSlide=Math.max(0,Math.min(slides.length-1,index));const slide=slides[currentSlide];pageImage.src=fileName(slide.page);pageImage.alt=`웹진 ${slide.page}페이지${slide.video?" 영상 화면":""}`;pageNumber.textContent=slide.page;previousButton.disabled=currentSlide===0;nextButton.disabled=currentSlide===slides.length-1;updateVideoCard(slide);preload(currentSlide-1);preload(currentSlide+1);history.replaceState(null,"",`#page=${slide.page}${slide.video?"&view=video":""}`)}
+    function goToPage(page){const index=slides.findIndex(slide=>slide.page===page&&!slide.video);if(index>=0)showSlide(index)}
+    function changePage(step){closeVideo(false);showSlide(currentSlide+step)}
     function openMenu(){menuReturnFocus=document.activeElement;menuOverlay.classList.add("open");menuClose.focus()}
     function closeMenu(){menuOverlay.classList.remove("open");if(menuReturnFocus)menuReturnFocus.focus()}
-    function openVideo(){const item=videoPages[currentPage];if(!item)return;modalVideo.src=item.src;videoModal.classList.add("open");modalVideo.play().catch(()=>{});modalClose.focus()}
+    function openVideo(){const slide=slides[currentSlide];const item=slide.video?videos[slide.video]:null;if(!item)return;modalVideo.src=item.src;videoModal.classList.add("open");modalVideo.play().catch(()=>{});modalClose.focus()}
     function closeVideo(reset=true){if(!videoModal.classList.contains("open"))return;modalVideo.pause();if(reset)modalVideo.currentTime=0;videoModal.classList.remove("open");modalVideo.removeAttribute("src");modalVideo.load();videoCard.focus()}
 
     previousButton.addEventListener("click",()=>changePage(-1));
@@ -142,17 +157,17 @@
     menuButton.addEventListener("click",openMenu);
     menuClose.addEventListener("click",closeMenu);
     menuOverlay.addEventListener("click",event=>{if(event.target===menuOverlay)closeMenu()});
-    document.querySelectorAll(".toc-button").forEach(button=>button.addEventListener("click",()=>{showPage(Number(button.dataset.page));closeMenu()}));
+    document.querySelectorAll(".toc-button").forEach(button=>button.addEventListener("click",()=>{goToPage(Number(button.dataset.page));closeMenu()}));
     videoCard.addEventListener("click",event=>{event.stopPropagation();openVideo()});
     modalVideo.addEventListener("click",event=>event.stopPropagation());
     modalClose.addEventListener("click",event=>{event.stopPropagation();closeVideo()});
-    videoModal.addEventListener("click",event=>{if(event.target!==videoModal)return;const goNext=event.clientX>=innerWidth/2;closeVideo();showPage(currentPage+(goNext?1:-1))});
+    videoModal.addEventListener("click",event=>{if(event.target!==videoModal)return;const goNext=event.clientX>=innerWidth/2;closeVideo();showSlide(currentSlide+(goNext?1:-1))});
     document.addEventListener("keydown",event=>{if(event.key==="Escape"){if(videoModal.classList.contains("open"))closeVideo();else if(menuOverlay.classList.contains("open"))closeMenu();return}if(menuOverlay.classList.contains("open")||videoModal.classList.contains("open"))return;if(event.key==="ArrowRight")changePage(1);if(event.key==="ArrowLeft")changePage(-1)});
     let touchStartX=0;
     pageStage.addEventListener("touchstart",event=>{touchStartX=event.changedTouches[0].clientX},{passive:true});
     pageStage.addEventListener("touchend",event=>{if(videoModal.classList.contains("open")||menuOverlay.classList.contains("open"))return;const delta=event.changedTouches[0].clientX-touchStartX;if(Math.abs(delta)>55)changePage(delta<0?1:-1)},{passive:true});
     addEventListener("resize",sizeStage);
-    const initialMatch=location.hash.match(/page=(\d+)/);sizeStage();showPage(initialMatch?Number(initialMatch[1]):1);
+    const initialMatch=location.hash.match(/page=(\d+)/);const initialPage=initialMatch?Number(initialMatch[1]):1;const wantsVideo=location.hash.includes("view=video");let initialIndex=slides.findIndex(slide=>slide.page===initialPage&&Boolean(slide.video)===wantsVideo);if(initialIndex<0)initialIndex=0;sizeStage();showSlide(initialIndex);
   </script>
 </body>
 </html>
